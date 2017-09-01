@@ -210,65 +210,21 @@ class MatrixDisplayField {
   }
 
   # multi (numeric)
-  private function multi_number() {
-    ?>
-    <span class="multi_number">
-      <?php
-        $this->schema['desc'] = $this->matrix->explodeTrim("\n", $this->schema['desc']);
-        $options = $this->matrix->explodeTrim("\n", $this->schema['options']);
-        $keys = $this->get_multi_keys($this->schema['rows']);
-        $labels = !empty($this->schema['labels']) ? $this->matrix->explodeTrim("\n", $this->schema['labels']) : array();
-        $values = explode_trim("\n", $this->value);
+  private function multi_number()
+  {
+    $inputs = $this->extractDataForMultipleFields();
+    $view   = new View('fields/multi_number');
 
-        $s = 0;
-        foreach ($keys as $i => $val) {
-          // value
-          $value = 0;
-          if (isset($values[$i])) {
-            $value = $values[$i];
-          }
-          elseif (isset($values[$s])) {
-            $value = $values[$s];
-          }
-      ?>
-        <?php if (!empty($labels) && isset($labels[$s])) { ?><label><?php echo $labels[$s]; ?> : </label><?php } ?>
-        <input type="number" value="<?php echo $value; ?>" style="margin-bottom: 4px;" name="post-<?php echo $this->name; ?>[]" <?php echo $this->properties; ?> class="text textmulti" value="<?php if (isset($options[$i])) echo $options[$i]; ?>" placeholder="<?php if (isset($this->schema['desc'][$i])) echo $this->schema['desc'][$i]; ?>" <?php echo $this->schema['readonly']; ?> <?php echo $this->schema['required']; ?> <?php if (strlen(trim($this->schema['validation']))>0) echo 'pattern="'.$this->schema['validation'].'"'; ?> <?php if (strlen(trim($this->schema['validation']))>0) echo 'pattern="'.$this->schema['validation'].'"'; ?>/>
-      <?php
-          $s++;
-        } ?>
-    </span>
-    <?php
+    echo $view->render(['inputs' => $inputs]);
   }
 
   # multi (textarea)
-  private function multi_textarea() {
-    ?>
-    <span class="multi_textarea">
-      <?php
-        $this->schema['desc'] = $this->matrix->explodeTrim("\n", $this->schema['desc']);
-        $options = $this->matrix->explodeTrim("\n", $this->schema['options']);
-        $keys    = $this->get_multi_keys($this->schema['rows']);
-        $labels  = !empty($this->schema['labels']) ? $this->matrix->explodeTrim("\n", $this->schema['labels']) : array();
-        $values = explode_trim("\n", $this->value);
+  private function multi_textarea()
+  {
+    $textareas = $this->extractDataForMultipleFields();
+    $view      = new View('fields/multi_textarea');
 
-        $s = 0;
-        foreach ($keys as $i => $val) {
-          // value
-          $value = 0;
-          if (isset($values[$i])) {
-            $value = $values[$i];
-          }
-          elseif (isset($values[$s])) {
-            $value = $values[$s];
-          }
-      ?>
-        <?php if (!empty($labels) && isset($labels[$s])) { ?><label><?php echo $labels[$s]; ?> : </label><?php } ?>
-        <textarea class="text" name="post-<?php echo $this->name; ?>[]" <?php echo $this->properties; ?>><?php echo $value; ?></textarea>
-      <?php
-          $s++;
-        } ?>
-    </span>
-    <?php
+    echo $view->render(['textareas' => $textareas]);
   }
 
   # multi (rte)
