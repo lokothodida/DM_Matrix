@@ -707,18 +707,18 @@ class MatrixDisplayField {
   }
 
   # file picker
-  private function picker_file() {
-    ?>
-    <input class="text filepicker" type="text" <?php echo $this->properties; ?>/>
-    <span class="edit-nav"><a id="browse-<?php echo $this->name; ?>" href="javascript:void(0);">Browse</a></span>
-    <script type="text/javascript">
-      $(function() {
-        $('#browse-<?php echo $this->name; ?>').click(function(e) {
-          window.open('<?php echo $this->matrix->getSiteURL().'admin/filebrowser.php?CKEditorFuncNum=1&returnid=post-'.$this->name.'type=all'; ?>', 'browser', 'width=800,height=500,left=100,top=100,scrollbars=yes');
-        });
-      });
-    </script>
-    <?php
+  private function picker_file()
+  {
+    $properties = $this->properties;
+    $name       = $this->name;
+    $url        = $this->matrix->getSiteURL().'admin/filebrowser.php?CKEditorFuncNum=1&returnid=post-' . $this->name . 'type=all';
+    $view       = new View('fields/picker_file');
+
+    echo $view->render([
+      'properties' => $properties,
+      'name'       => $name,
+      'url'        => $url,
+    ]);
   }
 
   # display
@@ -738,5 +738,3 @@ class MatrixDisplayField {
     return call_user_func_array(array($this, $method), $params);
   }
 }
-
-?>
