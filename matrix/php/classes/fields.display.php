@@ -227,83 +227,28 @@ class MatrixDisplayField {
     echo $view->render(['textareas' => $textareas]);
   }
 
-  # multi (rte)
-  private function multi_rte() {
-    ?>
-    <script>
-      $(document).ready(function() {
-        $('.<?php echo $this->id; ?>').jqte();
-      }); // ready
-    </script>
-    <span class="multi_rte">
-      <?php
-        $this->schema['desc'] = $this->matrix->explodeTrim("\n", $this->schema['desc']);
-        $options = $this->matrix->explodeTrim("\n", $this->schema['options']);
-        $keys    = $this->get_multi_keys($this->schema['rows']);
-        $labels  = !empty($this->schema['labels']) ? $this->matrix->explodeTrim("\n", $this->schema['labels']) : array();
-        $values = explode_trim("\n", $this->value);
+  # multi (rich text editor)
+  private function multi_rte()
+  {
+    $textareas = $this->extractDataForMultipleFields();
+    $view      = new View('fields/multi_rte');
 
-        $s = 0;
-        foreach ($keys as $i => $val) {
-          // value
-          $value = 0;
-          if (isset($values[$i])) {
-            $value = $values[$i];
-          }
-          elseif (isset($values[$s])) {
-            $value = $values[$s];
-          }
-      ?>
-        <?php if (!empty($labels) && isset($labels[$s])) { ?><label><?php echo $labels[$s]; ?> : </label><?php } ?>
-        <textarea class="text <?php echo $this->id; ?>" name="<?php echo $this->id; ?>[]" <?php echo $this->properties; ?>><?php echo $value; ?></textarea>
-      <?php
-          $s++;
-        } ?>
-    </span>
-    <?php
+    echo $view->render([
+      'id'        => $this->id,
+      'textareas' => $textareas
+    ]);
   }
 
   # multi (code)
-  private function multi_code() {
-    $this->schema['desc'] = $this->matrix->explodeTrim("\n", $this->schema['desc']);
-    $options = $this->matrix->explodeTrim("\n", $this->schema['options']);
-    $keys    = $this->get_multi_keys($this->schema['rows']);
-    $labels  = !empty($this->schema['labels']) ? $this->matrix->explodeTrim("\n", $this->schema['labels']) : array();
-    $values = explode_trim("\n", $this->value);
-    ?>
-    <script>
-      <?php for ($s = 0; $s < count($keys); $s++ ) { ?>
-      editAreaLoader.init({
-        id: '<?php echo $this->id; ?>_<?php echo $s; ?>',
-        start_highlight: true,
-        allow_resize: "both",
-        allow_toggle: true,
-        word_wrap: true,
-        language: "en",
-        syntax: "php"
-      });
-      <?php } ?>
-    </script>
-    <span class="multi_code">
-      <?php
-        $s = 0;
-        foreach ($keys as $i => $val) {
-          // value
-          $value = 0;
-          if (isset($values[$i])) {
-            $value = $values[$i];
-          }
-          elseif (isset($values[$s])) {
-            $value = $values[$s];
-          }
-      ?>
-        <?php if (!empty($labels) && isset($labels[$s])) { ?><label><?php echo $labels[$s]; ?> : </label><?php } ?>
-        <textarea class="text" id="<?php echo $this->id.'_'.$s; ?>" name="<?php echo $this->id; ?>[]" <?php echo $this->properties; ?>><?php echo $value; ?></textarea>
-      <?php
-          $s++;
-        } ?>
-    </span>
-    <?php
+  private function multi_code()
+  {
+    $textareas = $this->extractDataForMultipleFields();
+    $view      = new View('fields/multi_code');
+
+    echo $view->render([
+      'id'        => $this->id,
+      'textareas' => $textareas
+    ]);
   }
 
   # date
