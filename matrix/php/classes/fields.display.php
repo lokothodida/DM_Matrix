@@ -3,6 +3,7 @@
  */
 
 use TheMatrix\View;
+use TheMatrix\Plugin;
 
 class MatrixDisplayField {
   /* constants */
@@ -335,89 +336,93 @@ class MatrixDisplayField {
 
   /* textareas */
   # textarea
-  private function textarea() {
-    ?><textarea class="text" <?php echo $this->properties; ?>><?php echo $this->value; ?></textarea><?php
+  private function textarea()
+  {
+    $view = new View('fields/textarea');
+
+    echo $view->render([
+      'value'      => $this->value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # tags
-  private function textarea_tags() {
-    ?>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $("#<?php echo $this->id; ?>").tagsInput();
-      });
-    </script>
-    <textarea <?php echo $this->properties; ?>><?php echo $this->value; ?></textarea>
-    <?php
+  private function textarea_tags()
+  {
+    $view = new View('fields/textarea_tags');
+
+    echo $view->render([
+      'id'         => $this->id,
+      'value'      => $this->value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # bbcode
-  private function textarea_bbcode() {
-    ?>
-    <script language="javascript">
-      $(document).ready(function()  {
-        $("#<?php echo $this->id; ?>").markItUp(GSBBCodeSettings);
-      });
-    </script>
-    <textarea <?php echo $this->properties; ?>><?php echo $this->value; ?></textarea>
-    <?php
+  private function textarea_bbcode()
+  {
+    $view = new View('fields/textarea_bbcode');
+
+    echo $view->render([
+      'id'         => $this->id,
+      'value'      => $this->value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # wiki
-  private function textarea_wiki() {
-    ?>
-    <script language="javascript">
-      $(document).ready(function()  {
-        $("#<?php echo $this->id; ?>").markItUp(GSWikiSettings);
-      });
-    </script>
-    <textarea <?php echo $this->properties; ?>><?php echo $this->value; ?></textarea>
-    <?php
+  private function textarea_wiki()
+  {
+    $view = new View('fields/textarea_wiki');
+
+    echo $view->render([
+      'id'         => $this->id,
+      'value'      => $this->value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # markdown
-  private function textarea_markdown() {
-    ?>
-    <script language="javascript">
-      $(document).ready(function()  {
-        $("#<?php echo $this->id; ?>").markItUp(GSMarkDownSettings);
-      });
-    </script>
-    <textarea <?php echo $this->properties; ?>><?php echo $this->value; ?></textarea>
-    <?php
+  private function textarea_markdown()
+  {
+    $view = new View('fields/textarea_markdown');
+
+    echo $view->render([
+      'id'         => $this->id,
+      'value'      => $this->value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # wysiwyg
-  private function textarea_wysiwyg() {
-    ?>
-    <style>
-      div.<?php echo $this->id; ?> .jqte_editor {
-        min-height: <?php echo $this->schema['height'] ?>;
-      }
-    </style>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $('textarea.<?php echo $this->id; ?>').jqte({
-          placeholder: <?php echo json_encode($this->schema['placeholder']); ?>
-        });
-      }); // ready
-    </script>
-    <div class="<?php echo $this->id; ?>">
-      <textarea class="<?php echo $this->id; ?>" <?php echo $this->properties; ?>><?php echo $this->value; ?></textarea>
-    </div>
-    <?php
+  private function textarea_wysiwyg()
+  {
+    $view = new View('fields/textarea_wysiwyg');
+
+    echo $view->render([
+      'id'          => $this->id,
+      'value'       => $this->value,
+      'properties'  => $this->properties,
+      'height'      => $this->schema['height'],
+      'placeholder' => json_encode($this->schema['placeholder']),
+    ]);
   }
 
   # code editor
-  private function textarea_code() {
-    // set up parameters
-    $params = array();
-    $params['value'] = $this->value;
-    $params['properties'] = $this->properties;
-    $params['id'] = $this->id;
+  private function textarea_code()
+  {
+    $iframeCssPath     = Plugin::getFullPathToFile('js/edit_area/style.css');
+    $iframeCssContents = file_get_contents($iframeCssPath);
+    $blankSpaces       = ["\r\n", "\r", "\n"];
+    $iframeCss         = str_replace($blankSpaces, '', $iframeCssContents);
+    $view              = new View('fields/textarea_code');
 
-    // output editor
-    $this->matrix->getEditor($params);
+    echo $view->render([
+      'id'          => $this->id,
+      'value'       => $this->value,
+      'properties'  => $this->properties,
+      'iframeCss'   => $iframeCss,
+    ]);
   }
 
   # dropdown
@@ -667,7 +672,7 @@ class MatrixDisplayField {
   }
 
   # display
-  public function display($params=array()) {
+  public function display($params = []) {
     // description
     if (!empty($this->schema['desc'])) {
       ?><span class="description"><?php echo $this->schema['desc']; ?></span><?php
