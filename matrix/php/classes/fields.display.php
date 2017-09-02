@@ -154,6 +154,9 @@ class MatrixDisplayField {
     echo $view->render(['inputs' => $inputs]);
   }
 
+  /**
+   * @return array
+   */
   private function extractDataForMultipleFields()
   {
     $this->schema['desc'] = $this->matrix->explodeTrim("\n", $this->schema['desc']);
@@ -252,41 +255,82 @@ class MatrixDisplayField {
   }
 
   # date
-  private function date() {
-    ?><input type="date" class="text" value="<?php echo $this->value; ?>" <?php echo $this->properties; ?>/><?php
+  private function date()
+  {
+    $view = new View('fields/date');
+
+    echo $view->render([
+      'value'      => $this->value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # time
-  private function date_time() {
-    if (empty($this->value)) $this->value = time();
-    $timestamp = (is_numeric($this->value)) ? $this->value : strtotime($this->value);
-    $value = date('H:i:s', $timestamp);
-    ?><input type="time" class="text" value="<?php echo $value; ?>" <?php echo $this->properties; ?>/><?php
+  private function date_time()
+  {
+    $value = $this->getFormattedDate($this->value, 'H:i:s');
+    $view  = new View('fields/date_time');
+
+    echo $view->render([
+      'value'      => $value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # datetimelocal
-  private function date_timelocal() {
-    if (empty($this->value)) $this->value = time();
-    $timestamp = (is_numeric($this->value)) ? $this->value : strtotime($this->value);
-    $value = date('Y-m-d\TH:i', $timestamp);
-    ?><input type="datetime-local" class="text" value="<?php echo $value; ?>" <?php echo $this->properties; ?>/><?php
+  private function date_timelocal()
+  {
+    $value = $this->getFormattedDate($this->value, 'Y-m-d\TH:i');
+    $view  = new View('fields/date_timelocal');
+
+    echo $view->render([
+      'value'      => $value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # week
-  private function date_week() {
-    if (empty($this->value)) $this->value = time();
-    $timestamp = (is_numeric($this->value)) ? $this->value : strtotime($this->value);
-    $value = date('Y-\WW', $timestamp);
-    ?><input type="week" class="text" value="<?php echo $value; ?>" <?php echo $this->properties; ?>/><?php
+  private function date_week()
+  {
+    $value = $this->getFormattedDate($this->value, 'Y-\WW');
+    $view  = new View('fields/date_week');
+
+    echo $view->render([
+      'value'      => $value,
+      'properties' => $this->properties,
+    ]);
   }
 
   # month
-  private function date_month() {
-    if (empty($this->value)) $this->value = time();
-    $timestamp = (is_numeric($this->value)) ? $this->value : strtotime($this->value);
-    $value = date('Y-m-d\TH:i', $timestamp);
-    $value = date('Y-m', $timestamp);
-    ?><input type="month" class="text" value="<?php echo $value; ?>" <?php echo $this->properties; ?>/><?php
+  private function date_month()
+  {
+    $value = $this->getFormattedDate($this->value, 'Y-m');
+    $view  = new View('fields/date_month');
+
+    echo $view->render([
+      'value'      => $value,
+      'properties' => $this->properties,
+    ]);
+  }
+
+  /**
+   * @param mixed $date
+   * @param string $format
+   * @return string
+   */
+  private function getFormattedDate($date, $format)
+  {
+    if (empty($date)) {
+      $date = time();
+    }
+
+    if (is_numeric($date)) {
+      $timestamp = $date;
+    } else {
+      $timestamp = strtotime($date);
+    }
+
+    return date($format, $timestamp);
   }
 
   /* textareas */
