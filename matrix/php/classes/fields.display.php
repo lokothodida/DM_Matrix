@@ -426,31 +426,59 @@ class MatrixDisplayField {
   }
 
   # dropdown
-  private function dropdown() {
-    $options = $this->matrix->getOptions($this->schema['options']);
-    ?>
-      <select class="text" <?php echo $this->properties; ?>>
-        <?php foreach ($options as $key => $option) { ?>
-          <option value="<?php echo $key; ?>" <?php if ($key == $this->value) echo 'selected="selected"'; ?> ><?php echo $option; ?></option>
-        <?php } ?>
-      </select>
-    <?php
+  private function dropdown()
+  {
+    $options       = $this->matrix->getOptions($this->schema['options']);
+    $optionsParsed = [];
+    $value         = $this->value;
+
+    foreach ($options as $key => $option) {
+      $optionsParsed[$key] = (object) [
+        'value'    => $option,
+        'selected' => ($key == $value) ? 'selected="selected"' : null,
+      ];
+    }
+
+    $view = new View('fields/dropdown');
+
+    echo $view->render([
+      'value'      => $value,
+      'properties' => $this->properties,
+      'options'    => $optionsParsed,
+    ]);
   }
 
   # dropdown for tables
-  private function dropdown_table() {
-    if ($this->matrix->fieldExists($this->schema['table'], $this->schema['row'])) {
-      $fields = 'id' . (($this->schema['row'] != 'id') ? ', '.$this->schema['row'] : '');
-      $query = $this->matrix->query('SELECT '.$fields.' FROM '.$this->schema['table'].' ORDER BY id ASC');
+  private function dropdown_table()
+  {
+    $value = $this->value;
+    $table = $this->schema['table'];
+    $row   = $this->schema['row'];
+
+    if ($this->matrix->fieldExists($table, $row)) {
+      $sql    = 'SELECT %s FROM %s ORDER BY id ASC';
+      $fields = implode(',', array_unique(['id', $row]));
+      $query  = $this->matrix->query(sprintf($sql, $fields, $table));
+    } else {
+      $query = [];
     }
-    else $query = array();
-    ?>
-    <select class="text" <?php echo $this->properties; ?>>
-      <?php foreach ($query as $record) { ?>
-        <option value="<?php echo $record['id']; ?>" <?php if ($record['id'] == $this->value) echo 'selected="selected"'; ?> ><?php echo $record[$this->schema['row']]; ?></option>
-      <?php } ?>
-    </select>
-    <?php
+
+    $records = [];
+
+    foreach ($query as $index => $record) {
+      $records[] = (object) [
+        'id'       => $record['id'],
+        'selected' => ($record['id'] == $value) ? 'selected="selected"' : null,
+        'value'    => $record[$row],
+      ];
+    }
+
+    $view = new View('fields/dropdown_table');
+
+    echo $view->render([
+      'properties' => $this->properties,
+      'records'    => $records,
+    ]);
   }
 
   # dropdown with hierarchy
@@ -466,17 +494,19 @@ class MatrixDisplayField {
   }
 
   # pages
-  private function dropdown_pages() {
+  private function dropdown_pages()
+  {
     getPagesXmlValues();
     global $pagesArray;
     $pages = $pagesArray;
-    ?>
-    <select class="text" <?php echo $this->properties; ?>>
-      <?php foreach ($pages as $slug => $properties) { ?>
-        <option value="<?php echo $slug; ?>" <?php if ($slug == $this->value) echo 'selected="selected"'; ?> ><?php echo $properties['title']; ?></option>
-      <?php } ?>
-    </select>
-    <?php
+
+    $view = new View('fields/dropdown_pages');
+
+    echo $view->render([
+      'value'      => $this->value,
+      'properties' => $this->properties,
+      'pages'      => $pages,
+    ]);
   }
 
   # users
@@ -672,7 +702,8 @@ class MatrixDisplayField {
   }
 
   # display
-  public function display($params = []) {
+  public function display($params = [])
+  {
     // description
     if (!empty($this->schema['desc'])) {
       ?><span class="description"><?php echo $this->schema['desc']; ?></span><?php
@@ -680,11 +711,12 @@ class MatrixDisplayField {
     // field
     if (method_exists(get_class($this), $this->method)) {
       $method = $this->method;
-    }
-    elseif (method_exists(get_class($this), $this->type)) {
+    } elseif (method_exists(get_class($this), $this->type)) {
       $method = $this->type;
+    } else {
+      $method = 'input';
     }
-    else $method = 'input';
+
     return call_user_func_array(array($this, $method), $params);
   }
 }
